@@ -9,3 +9,4 @@ exports.handler=async e=>{
   fields:Object.entries(fields||{}).slice(0,24).map(([k,v])=>({name:k.slice(0,250),value:String(v||'-').slice(0,1000)}))};
  const r=await fetch(s.data().webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})});
  return{statusCode:200,body:JSON.stringify({ok:r.ok})}};
+exports.handler=require('./_a').safe(exports.handler);

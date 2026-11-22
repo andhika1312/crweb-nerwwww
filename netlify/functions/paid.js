@@ -10,3 +10,4 @@ exports.handler=async e=>{
   await hook('Pembayaran dikonfirmasi #'+id,{'Order ID':id,Nama:r.d.name,Total:'Rp'+Number(r.d.total).toLocaleString('id-ID'),'Jumlah CR':r.d.coins,'Kode claim':r.code});
   return{statusCode:200,body:JSON.stringify({code:r.code})}}
  catch(x){return{statusCode:200,body:JSON.stringify({error:x.message})}}};
+exports.handler=require('./_a').safe(exports.handler);

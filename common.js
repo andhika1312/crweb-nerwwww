@@ -1,7 +1,7 @@
 firebase.initializeApp(CFG.firebase);const auth=firebase.auth(),db=firebase.firestore();
 const $=s=>document.querySelector(s);
 async function api(fn,body,method='POST'){const t=auth.currentUser?await auth.currentUser.getIdToken():'';
- const r=await fetch('/.netlify/functions/'+fn,{method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:method=='POST'?JSON.stringify(body):undefined});return r.json()}
+ const r=await fetch('/.netlify/functions/'+fn,{method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:method=='POST'?JSON.stringify(body):undefined});const x=await r.text();try{return JSON.parse(x)}catch{return{error:'Server '+r.status+': '+x.slice(0,150)}}}
 function form(sel,F,cb,label='Kirim pendaftaran'){const f=$(sel);
  f.innerHTML=F.map(([k,l,t])=>`<label>${l}${t==1?`<textarea name="${k}" required></textarea>`:`<input name="${k}" type="${t==2?'date':t==3?'number':'text'}" required>`}</label>`).join('')+`<button class="btn">${label}</button>`;
  f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('button');b.disabled=true;try{await cb(Object.fromEntries(new FormData(f)));f.reset()}catch(x){alert('Gagal: '+x.message)}b.disabled=false}}

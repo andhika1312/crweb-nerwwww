@@ -6,3 +6,4 @@ exports.handler=async e=>{
  try{const r=await fetch(process.env.FIVEM_API+'/'+path+'?'+new URLSearchParams(q),{headers:{'x-secret':process.env.FIVEM_SECRET}});
   return{statusCode:200,headers:{'Content-Type':'application/json'},body:await r.text()}}
  catch(x){return{statusCode:200,body:JSON.stringify({error:'Tidak bisa terhubung ke FiveM: '+x.message})}}};
+exports.handler=require('./_a').safe(exports.handler);

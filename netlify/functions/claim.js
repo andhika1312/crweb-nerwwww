@@ -9,3 +9,4 @@ exports.handler=async e=>{
   await hook('Kode claim dipakai',{Kode:code,Order:d.orderId,Pemain:b.player,'Jumlah CR':d.coins});
   return out({ok:true,coins:d.coins,orderId:d.orderId})}
  catch(x){return out({ok:false,msg:x.message})}};
+exports.handler=require('./_a').safe(exports.handler);
