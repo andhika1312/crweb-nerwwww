@@ -29,10 +29,10 @@ Salin `fivem/cr_donation` ke `resources/`. Edit `config.lua` (`Site` dan `Secret
 ensure cr_donation
 add_ace group.admin cr_donation.admin allow
 ```
-Pemain: `/donation`. Admin (in-game atau konsol): `/cekcoin id`, `/setcoin id jumlah`, `/addcoin id jumlah`.
+Pemain: `/donation`. Admin: buka panel dengan `/cradmin`.
 Script lain: `exports.cr_donation:GetCoins(src)` dan `exports.cr_donation:AddCoins(src,-jumlah,'alasan')`.
 ### Koneksi dashboard ke FiveM
-Resource `cr_donation` membuka endpoint HTTP di `http://IP:30120/cr_donation/` (dijaga `Config.Secret`). Isi `FIVEM_API` dan `FIVEM_SECRET` di `.env` / Netlify. Dashboard lalu bisa: daftar pemain online, log kota, daftar ban + ban/unban, cek inventory, dan set koin. Command in-game: `/cban id alasan`, `/cunban license:xxx`. Saat web sudah online, port 30120 server harus bisa diakses dari internet.
+Resource `cr_donation` membuka endpoint HTTP di `http://IP:30120/cr_donation/` (dijaga `Config.Secret`). Isi `FIVEM_API` dan `FIVEM_SECRET` di `.env` / Netlify. Dashboard lalu bisa: daftar pemain online, log kota, daftar ban + ban/unban, cek inventory, dan set koin. Ban/unban in-game lewat panel `/cradmin`. Saat web sudah online, port 30120 server harus bisa diakses dari internet.
 Inventory otomatis mendukung ox_inventory, qb-core, dan es_extended (fungsi `inventory()` di `server.lua`).
 ## 5. Alur donasi
 Pembeli isi nama + jumlah > order dibuat > ke Discord ticket > admin klik **Sudah bayar** di dashboard > kode claim dibuat dan muncul di webhook Discord > admin kasih kode ke pemain > pemain `/donation` > Redeem > saldo CR bertambah. Pemasukan otomatis masuk menu Keuangan.
@@ -44,5 +44,9 @@ Foto produk: `catalog.json` + `assets/images/shop/`. Tim dan partner: langsung d
 Isi katalog `/donation` ada di `fivem/cr_donation/html/shop.json`, gambar di `html/img/`. Kategori punya `sub` (sub-kategori, tiap sub punya `items`) atau langsung `items`. Tambah kategori/sub-kategori dengan menyalin blok yang ada, lalu restart resource.
 
 ## Beli kendaraan di game
-Syarat: `oxmysql`, OneSync, dan framework QBCore atau ESX (otomatis terdeteksi; atur `Config.Framework` kalau perlu). Kendaraan masuk tabel `player_vehicles` (QB) / `owned_vehicles` (ESX), plat unik dibuat otomatis, kendaraan muncul di dekat pemain, dan kunci diberikan ke script kunci yang terdeteksi (atau isi `Config.GiveKeys`).
-Tiap item kendaraan di `html/shop.json` butuh `id` unik dan `model` (nama spawn GTA). Admin: `/listharga [kata]`, `/setharga [id_item] [harga]`, `/resetharga [id_item]`.
+Syarat: salah satu resource MySQL (`oxmysql`, `mysql-async`, atau `ghmattimysql`), OneSync, dan framework QBCore atau ESX (otomatis terdeteksi; atur `Config.Framework` kalau perlu). Kendaraan masuk tabel `player_vehicles` (QB) / `owned_vehicles` (ESX), plat unik dibuat otomatis, kendaraan muncul di dekat pemain, dan kunci diberikan ke script kunci yang terdeteksi (atau isi `Config.GiveKeys`).
+Tiap item kendaraan di `html/shop.json` butuh `id` unik dan `model` (nama spawn GTA). Harga diatur admin di panel `/cradmin` tab Harga.
+
+### Command admin
+Hanya satu: **`/cradmin`** (nama bisa diganti di `Config.AdminCommand`). Membuka panel admin dengan tab Pemain (cek, set, tambah, kurangi koin, ban), Harga (ubah harga item), Ban (unban), dan Log.
+Izin: di `server.cfg` tulis `add_ace group.admin cr_donation.admin allow`, lalu `add_principal identifier.license:LISENSIMU group.admin`. Atau lebih mudah: ketik `/lisensiku` di game, salin hasilnya ke `Config.AdminIdentifiers` di `config.lua`.
