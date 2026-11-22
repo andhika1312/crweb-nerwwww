@@ -39,3 +39,10 @@ Pembeli isi nama + jumlah > order dibuat > ke Discord ticket > admin klik **Suda
 ## 6. Publish
 Upload ke GitHub (`.env` sudah di `.gitignore`), hubungkan ke Netlify, isi env var yang sama di Netlify. Ganti `Config.Site` ke URL Netlify.
 Foto produk: `catalog.json` + `assets/images/shop/`. Tim dan partner: langsung di `index.html` (bagian TIM dan PARTNERSHIP), foto di `assets/images/team/` dan `assets/images/partner/`.
+
+## Katalog di FiveM
+Isi katalog `/donation` ada di `fivem/cr_donation/html/shop.json`, gambar di `html/img/`. Kategori punya `sub` (sub-kategori, tiap sub punya `items`) atau langsung `items`. Tambah kategori/sub-kategori dengan menyalin blok yang ada, lalu restart resource.
+
+## Beli kendaraan di game
+Syarat: `oxmysql`, OneSync, dan framework QBCore atau ESX (otomatis terdeteksi; atur `Config.Framework` kalau perlu). Kendaraan masuk tabel `player_vehicles` (QB) / `owned_vehicles` (ESX), plat unik dibuat otomatis, kendaraan muncul di dekat pemain, dan kunci diberikan ke script kunci yang terdeteksi (atau isi `Config.GiveKeys`).
+Tiap item kendaraan di `html/shop.json` butuh `id` unik dan `model` (nama spawn GTA). Admin: `/listharga [kata]`, `/setharga [id_item] [harga]`, `/resetharga [id_item]`.
