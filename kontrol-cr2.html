@@ -1,0 +1,69 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script></head><body>
+<nav id="nv" hidden><b>DASHBOARD CULTURE RP V2</b><span class="sp"></span><button class="btn g" id="out">Keluar</button></nav>
+<section id="nf"><h2>404</h2><p>Halaman tidak ditemukan.</p></section>
+<section id="lg" hidden><form id="fl" style="max-width:340px"><label>Email<input name="e" type="email"></label><label>Password<input name="p" type="password"></label><button class="btn">Masuk</button><p id="er" style="color:#fca5a5;margin-top:12px;line-height:1.5;word-break:break-all"></p></form></section>
+<main id="mn" hidden>
+<section><h2>Server</h2><div class="row"><div class="card stat"><b id="sp">-</b>Pemain</div><div class="card stat"><b id="sd">-</b>Member Discord</div></div>
+<div class="card" style="margin-top:12px"><b>Pemain di kota</b><table id="pl"></table></div>
+<div class="card" style="margin-top:12px"><div class="row"><button class="btn" onclick="fv('logs')">Log kota</button><button class="btn" onclick="fv('bans')">Daftar ban</button><input id="pi" placeholder="ID pemain" style="width:140px;margin:0"><button class="btn g" onclick="pk($('#pi').value,'inventory')">Inventory</button><button class="btn g" onclick="pk($('#pi').value,'coin')">Koin</button></div><div id="po" style="margin-top:12px;overflow:auto"></div></div></section>
+<section><h2>Whitelist & webhook</h2><div class="row" style="align-items:start"><form id="ft"><label>Nama whitelist<input name="n" required></label><label>Webhook Discord<input name="w" required></label><button class="btn">Tambah whitelist</button></form>
+<form id="fw"><label>Webhook khusus<select name="i"><option value="admin_recruit">Pendaftaran admin</option><option value="orders">Order donasi</option></select></label><label>URL webhook<input name="w" required></label><button class="btn">Simpan</button></form>
+<button class="btn g" id="seed">Isi 6 whitelist awal</button></div><div id="tl" class="grid" style="margin-top:14px"></div><div id="ar" class="card" style="margin-top:14px"></div></section>
+
+<section><h2>Konten aturan</h2><form id="fc"><label>Halaman<select name="k"><option value="rp">Peraturan Roleplay</option><option value="kota">Peraturan Kota</option><option value="bahasa">Bahasa Dasar RP</option><option value="donasi">Ketentuan Donasi</option></select></label><label>Judul<input name="t" required></label><label>Isi (satu baris = satu poin)<textarea name="b" style="min-height:180px" required></textarea></label><button class="btn">Simpan konten</button></form></section>
+<section><h2>Blacklist</h2><form id="fb"><label>Nama pemain<input name="name" required></label><label>Alasan<input name="reason" required></label><button class="btn">Tambah</button></form><div class="card" style="margin-top:12px"><table id="bl"></table></div></section>
+
+
+<section><h2>Keuangan</h2><div class="row" id="fn"></div><div class="card" style="margin-top:12px;overflow:auto"><svg id="fg" viewBox="0 0 720 210" style="width:100%;min-width:560px"></svg></div><div class="card" style="margin-top:12px;overflow:auto"><table id="fr"></table></div></section>
+<section><h2>Order</h2><div class="card" style="overflow:auto"><table id="od"></table></div></section>
+<section><h2>Pendaftar</h2><div class="card"><table id="ap"></table></div></section></main>
+<script src="config.js"></script><script src="common.js"></script><script>
+const rp=a=>'Rp'+Number(a).toLocaleString('id-ID');
+const er=t=>$('#er').textContent=t;
+const EM={'auth/invalid-credential':'Email atau password salah, atau akun belum dibuat di Firebase Authentication.','auth/operation-not-allowed':'Aktifkan Email/Password di Firebase > Authentication > Sign-in method.','auth/invalid-api-key':'apiKey di config.js salah.'};
+$('#fl').onsubmit=e=>{e.preventDefault();er('Memproses...');auth.signInWithEmailAndPassword(e.target.e.value,e.target.p.value).catch(x=>er(EM[x.code]||x.code+': '+x.message))};
+function gate(u){$('#mn').hidden=$('#lg').hidden=$('#nv').hidden=true;$('#nf').hidden=false;if(!u){if(location.hash=='#masuk'){$('#lg').hidden=false;$('#nf').hidden=true}return}
+ db.doc('admins/'+u.uid).get().then(x=>{if(!x.exists){er('Login berhasil, tapi akun ini belum jadi admin. Di Firestore buat koleksi "admins" dengan Document ID: '+u.uid);auth.signOut();return}er('');document.title='Dashboard';$('#nf').hidden=true;$('#mn').hidden=$('#nv').hidden=false;init()}).catch(x=>{er('Gagal membaca Firestore ('+x.code+'). Pastikan Firestore Database sudah dibuat dan project ID di config.js benar.');auth.signOut()})}
+auth.onAuthStateChanged(gate);addEventListener('hashchange',()=>{if(!auth.currentUser)gate(null)});
+function init(){lists();
+ db.collection('types').onSnapshot(s=>$('#tl').innerHTML=s.docs.map(d=>{const o=d.data().open!==false;return`<div class="card">${d.data().name}<br><button class="btn ${o?'':'g'}" style="margin:8px 0" onclick="tg('types','${d.id}',${o})">${o?'Dibuka':'Ditutup'}</button><br><a href="#" onclick="rm('types','${d.id}');rm('secrets','${d.id}');return false">hapus</a></div>`}).join(''));
+ db.doc('settings/admin_recruit').onSnapshot(d=>{const o=!d.exists||d.data().open!==false;$('#ar').innerHTML=`Pendaftaran tim admin: <b>${o?'Dibuka':'Ditutup'}</b> <button class="btn ${o?'':'g'}" onclick="tg('settings','admin_recruit',${o})">${o?'Tutup':'Buka'}</button>`});
+ db.collection('apps').onSnapshot(s=>$('#ap').innerHTML=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.createdAt-a.createdAt).map(a=>`<tr><td><b>${E(a.typeName)}</b><br>${new Date(a.createdAt).toLocaleDateString('id-ID')}</td><td>${Object.entries(a.data).map(([k,v])=>`${E(k)}: ${E(v)}`).join('<br>')}</td><td><select onchange="db.doc('apps/${a.id}').update({status:this.value})">${['baru','diterima','ditolak'].map(x=>`<option ${x==a.status?'selected':''}>${x}</option>`).join('')}</select> <a href="#" onclick="rm('apps','${a.id}');return false">hapus</a></td></tr>`).join(''));
+ db.collection('orders').onSnapshot(s=>{OD=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>b.createdAt-a.createdAt);ro()});
+ db.collection('claims').onSnapshot(s=>{CL={};s.docs.forEach(x=>CL[x.data().orderId]=x.id+(x.data().claimed?' (terpakai)':''));ro()});
+ db.collection('finance').onSnapshot(s=>fin(s.docs.map(x=>x.data())));
+ sv();setInterval(sv,20000)}
+const tg=(c,i,o)=>db.doc(c+'/'+i).set({open:!o},{merge:true});
+const rm=(c,i)=>confirm('Hapus?')&&db.doc(c+'/'+i).delete();
+async function sv(){const d=await api('status',0,'GET');$('#sp').textContent=d.players!=null?d.players+'/'+d.max:'Offline';$('#sd').textContent=d.discord??'-';$('#pl').innerHTML=(d.list||[]).map(p=>`<tr><td>${E(p.id)}</td><td>${E(p.name)}</td><td>${E(p.ping)}ms</td><td><a href="#" onclick="pk(${+p.id},'inventory');return false">inventory</a> · <a href="#" onclick="pk(${+p.id},'coin');return false">koin</a> · <a href="#" onclick="bn(${+p.id});return false">ban</a></td></tr>`).join('')}
+$('#ft').onsubmit=async e=>{e.preventDefault();const f=e.target,r=await db.collection('types').add({name:f.n.value});await db.doc('secrets/'+r.id).set({webhook:f.w.value});f.reset()};
+$('#fw').onsubmit=async e=>{e.preventDefault();await db.doc('secrets/'+e.target.i.value).set({webhook:e.target.w.value});alert('Tersimpan');e.target.w.value=''};
+$('#seed').onclick=()=>['Polisi','EMS','Pemerintah','Mekanik','Pedagang','Bahamas'].forEach(n=>db.collection('types').add({name:n}));
+const add=(id,col,ex)=>{$(id).onsubmit=async e=>{e.preventDefault();const o=Object.fromEntries(new FormData(e.target));await db.collection(col).add({...o,...(ex?ex():{})});e.target.reset()}};
+add('#fb','blacklist',()=>({ts:Date.now()}));
+const lst=(col,el,f)=>db.collection(col).onSnapshot(s=>$(el).innerHTML=s.docs.map(x=>f(x.data(),`<a href="#" onclick="rm('${col}','${x.id}');return false">hapus</a>`)).join(''));
+function lists(){lst('blacklist','#bl',(b,x)=>`<tr><td>${b.name}</td><td>${b.reason}</td><td>${x}</td></tr>`)}
+const fc=$('#fc');const fill=()=>db.doc('content/'+fc.k.value).get().then(x=>{const v=x.exists?x.data():DEF[fc.k.value];fc.t.value=v.title;fc.b.value=v.body});
+fc.k.onchange=fill;fill().catch(()=>{});fc.onsubmit=async e=>{e.preventDefault();await db.doc('content/'+fc.k.value).set({title:fc.t.value,body:fc.b.value});alert('Tersimpan')};
+let OD=[],CL={};
+function ro(){$('#od').innerHTML='<tr><th>Order</th><th>Pemesan</th><th>Pesanan</th><th>Total</th><th>Status</th><th>Kode claim</th><th></th></tr>'+OD.map(o=>`<tr><td>${o.id}</td><td>${E(o.name||'-')}</td><td>${(o.items||[]).map(i=>E(i.qty+'x '+i.name)).join(', ')}<br>${E(o.coins||0)} CR</td><td>${rp(o.total)}</td><td>${o.status}</td><td><b>${CL[o.id]||'-'}</b></td><td>${o.status=='menunggu pembayaran'?`<button class="btn" onclick="paid('${o.id}')">Sudah bayar</button> <a href="#" onclick="db.doc('orders/${o.id}').update({status:'dibatalkan'});return false">batal</a>`:''}</td></tr>`).join('')}
+async function paid(id){if(!confirm('Pembayaran sudah masuk dan benar? Kode claim akan dibuat.'))return;const r=await api('paid',{id});alert(r.code?'Kode claim: '+r.code+' (juga dikirim ke webhook Discord)':(r.error||'Gagal'))}
+function fin(F){const k=t=>new Date(t).toLocaleDateString('en-CA'),now=Date.now(),sm=a=>a.reduce((x,f)=>x+f.total,0);
+ const D=[...Array(14)].map((_,i)=>k(now-(13-i)*864e5)),V=D.map(x=>sm(F.filter(f=>k(f.ts)==x))),mx=Math.max(...V,1);
+ $('#fn').innerHTML=[['Total pemasukan',sm(F)],['Hari ini',V[13]],['30 hari terakhir',sm(F.filter(f=>now-f.ts<30*864e5))]].map(([l,v])=>`<div class="card stat"><b>${rp(v)}</b>${l}</div>`).join('')+`<div class="card stat"><b>${F.length}</b>Transaksi</div>`;
+ $('#fg').innerHTML=V.map((v,i)=>{const hh=v/mx*140;return`<rect x="${i*50+12}" y="${170-hh}" width="34" height="${hh}" rx="5" fill="#8b5cf6"/><text x="${i*50+29}" y="190" fill="#aaa" font-size="11" text-anchor="middle">${D[i].slice(5)}</text>${v?`<text x="${i*50+29}" y="${164-hh}" fill="#c4b5fd" font-size="10" text-anchor="middle">${Math.round(v/1000)}k</text>`:''}`}).join('');
+ $('#fr').innerHTML='<tr><th>Tanggal</th><th>Pemesan</th><th>Order</th><th>Jumlah</th></tr>'+F.sort((a,b)=>b.ts-a.ts).slice(0,20).map(f=>`<tr><td>${new Date(f.ts).toLocaleDateString('id-ID')}</td><td>${E(f.name)}</td><td>${E(f.orderId)}</td><td>${rp(f.total)}</td></tr>`).join('')}
+const pk=(id,p)=>fv(p,{id}),bn=id=>{const r=prompt('Alasan ban?');if(r)fv('ban',{id,reason:r})};
+async function fv(path,p={}){const o=$('#po');o.textContent='Memuat...';const t=await auth.currentUser.getIdToken();let j;
+ try{j=await(await fetch('/.netlify/functions/fivem?path='+path+'&'+new URLSearchParams(p),{headers:{Authorization:'Bearer '+t}})).json()}catch{return o.textContent='Gagal: tidak bisa menghubungi fungsi FiveM.'}
+ if(j.error)return o.textContent=j.error;if(j.msg){o.textContent=j.msg;return path=='unban'?fv('bans'):0}
+ const T=(h,r)=>'<table><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+r.join('')+'</table>';
+ if(path=='logs')o.innerHTML=T(['Waktu','Jenis','Keterangan'],j.map(l=>`<tr><td>${E(l.t)}</td><td>${E(l.type)}</td><td>${E(l.m)}</td></tr>`));
+ else if(path=='bans')o.innerHTML=j.length?T(['Pemain','Alasan','Oleh','Tanggal',''],j.map(b=>`<tr><td>${E(b.name)}<br><small>${E(b.lic)}</small></td><td>${E(b.reason)}</td><td>${E(b.by)}</td><td>${E(b.t)}</td><td><a href="#" data-l="${E(b.lic)}" onclick="fv('unban',{lic:this.dataset.l});return false">unban</a></td></tr>`)):'Tidak ada ban.';
+ else if(path=='inventory')o.innerHTML=T(['Item','Jumlah'],(j.items||[]).map(i=>`<tr><td>${E(i.name)}</td><td>${E(i.count)}</td></tr>`))+`<small>Framework: ${E(j.fw)}</small>`;
+ else if(path=='coin')o.innerHTML=`Saldo <b>${E(j.name)}</b>: ${E(j.bal)} CR <div class="row" style="margin-top:8px"><input id="ca" type="number" min="0" placeholder="Set ke..." style="width:140px;margin:0"><button class="btn" onclick="fv('setcoin',{id:${+p.id},amt:$('#ca').value})">Set koin</button></div>`;
+ else o.textContent=JSON.stringify(j)}
+</script></body></html>

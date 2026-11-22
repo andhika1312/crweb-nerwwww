@@ -1,0 +1,6 @@
+[
+{"id":"cr50","name":"50 CR Coin","cat":"Coin","desc":"Top up 50 CR untuk dipakai di kota.","price":25000,"coins":50,"img":"assets/images/shop/coin.png"},
+{"id":"cr100","name":"100 CR Coin","cat":"Coin","desc":"Top up 100 CR untuk dipakai di kota.","price":45000,"coins":100,"img":"assets/images/shop/coin.png"},
+{"id":"cr250","name":"250 CR Coin","cat":"Coin","desc":"Top up 250 CR, lebih hemat.","price":100000,"coins":250,"img":"assets/images/shop/coin.png"},
+{"id":"starter","name":"Paket Starter","cat":"Paket","desc":"120 CR untuk memulai.","price":50000,"coins":120,"img":"assets/images/shop/coin.png"}
+]
